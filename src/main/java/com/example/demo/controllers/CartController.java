@@ -3,6 +3,8 @@ package com.example.demo.controllers;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,13 +33,18 @@ public class CartController {
 	
 	@Autowired
 	private ItemRepository itemRepository;
-	
+
+	private Logger log = LoggerFactory.getLogger(CartController.class);
+
 	@PostMapping("/addToCart")
 	public ResponseEntity<Cart> addTocart(@RequestBody ModifyCartRequest request) {
 		User user = userRepository.findByUsername(request.getUsername());
+		log.info("addTocart: adding to card request initiated");
 		if(user == null) {
+			log.error("addTocart: user not found");
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
+
 		Optional<Item> item = itemRepository.findById(request.getItemId());
 		if(!item.isPresent()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -46,13 +53,16 @@ public class CartController {
 		IntStream.range(0, request.getQuantity())
 			.forEach(i -> cart.addItem(item.get()));
 		cartRepository.save(cart);
+		log.info("addTocart: cart successfully updated");
 		return ResponseEntity.ok(cart);
 	}
 	
 	@PostMapping("/removeFromCart")
 	public ResponseEntity<Cart> removeFromcart(@RequestBody ModifyCartRequest request) {
+		log.info("removeFromcart: removing from cart method invoked");
 		User user = userRepository.findByUsername(request.getUsername());
 		if(user == null) {
+			log.error("removeFromcart: user not found");
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 		Optional<Item> item = itemRepository.findById(request.getItemId());
@@ -63,6 +73,7 @@ public class CartController {
 		IntStream.range(0, request.getQuantity())
 			.forEach(i -> cart.removeItem(item.get()));
 		cartRepository.save(cart);
+		log.info("removeFromcart: cart successfully updated");
 		return ResponseEntity.ok(cart);
 	}
 		
