@@ -73,7 +73,6 @@ public class CartControllerTest {
     @Test
     public void negative_addToCart()
     {
-
         Item item = new Item();
         item.setId(0L);
         item.setName("Round Widget");
@@ -95,6 +94,69 @@ public class CartControllerTest {
         modifyCartRequest.setQuantity(4);
 
         ResponseEntity<Cart> response = cartController.addTocart(modifyCartRequest);
+
+        assertEquals(404, response.getStatusCodeValue());
+    }
+
+    @Test
+    public void verify_removeFromcart(){
+        Item item = new Item();
+        item.setId(0L);
+        item.setName("Round Widget");
+        item.setDescription("A widget that is round");
+        item.setPrice(BigDecimal.valueOf(3));
+        when(itemRepository.findById(0L)).thenReturn(Optional.of(item));
+
+        Cart cart = new Cart();
+        cart.addItem(item);
+        cart.addItem(item);
+        cart.addItem(item);
+        cart.addItem(item);
+        User user = new User();
+        user.setId(0L);
+        user.setUsername("test");
+        user.setPassword("helloWorldCrack it");
+        user.setCart(cart);
+        when(userRepository.findByUsername("test")).thenReturn(user);
+
+        ModifyCartRequest modifyCartRequest = new ModifyCartRequest();
+        modifyCartRequest.setItemId(0L);
+        modifyCartRequest.setUsername("test");
+        modifyCartRequest.setQuantity(1);
+
+        ResponseEntity<Cart> response = cartController.removeFromcart(modifyCartRequest);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(3,response.getBody().getItems().size());
+    }
+
+    @Test
+    public void negative_removeFromcart(){
+        Item item = new Item();
+        item.setId(0L);
+        item.setName("Round Widget");
+        item.setDescription("A widget that is round");
+        item.setPrice(BigDecimal.valueOf(3));
+        when(itemRepository.findById(0L)).thenReturn(Optional.of(item));
+
+        Cart cart = new Cart();
+        cart.addItem(item);
+        cart.addItem(item);
+        cart.addItem(item);
+        cart.addItem(item);
+        User user = new User();
+        user.setId(0L);
+        user.setUsername("test");
+        user.setPassword("helloWorldCrack it");
+        user.setCart(cart);
+        when(userRepository.findByUsername("test")).thenReturn(user);
+
+        ModifyCartRequest modifyCartRequest = new ModifyCartRequest();
+        modifyCartRequest.setItemId(0L);
+        modifyCartRequest.setUsername("test1");
+        modifyCartRequest.setQuantity(1);
+
+        ResponseEntity<Cart> response = cartController.removeFromcart(modifyCartRequest);
 
         assertEquals(404, response.getStatusCodeValue());
     }
